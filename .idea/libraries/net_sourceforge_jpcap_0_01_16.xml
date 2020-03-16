@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="net.sourceforge.jpcap-0.01.16">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../Project Stuff/net.sourceforge.jpcap-0.01.16.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../Project Stuff/net.sourceforge.jpcap-0.01.16.jar!/" />
+    </SOURCES>
+  </library>
+</component>
