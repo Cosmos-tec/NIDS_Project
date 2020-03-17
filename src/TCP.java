@@ -4,6 +4,7 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,10 +17,11 @@ import java.sql.Timestamp;
 public class TCP extends Handler implements Runnable {
 
     private Date date = new Date();
-    public static String hostIP = /*"192.168.1.6";*/"10.3.4.66";
+    public static String hostIP = /*"192.168.1.6";*/"192.168.1.159";
     private String userIP = "";
     private ArrayList<PcapPacket> sPacket = new ArrayList<>();
     public static SocketChannel sc;
+    private Thread session;
 
     public TCP(PcapIf device) {
         super();
@@ -45,6 +47,8 @@ public class TCP extends Handler implements Runnable {
                 Timestamp ts = new Timestamp(time);
                 Ip4 ip = new Ip4();
                 Tcp tcp = new Tcp();
+                Http http = new Http();
+                session = new Thread(new Session(packet));
 
                 if (!packet.hasHeader(ip)) {
                     return; // Not IP packet
@@ -56,6 +60,9 @@ public class TCP extends Handler implements Runnable {
                 String destinationIP = org.jnetpcap.packet.format.FormatUtils.ip(dIP);
 
                 tcp = packet.getHeader(new Tcp());
+                http = packet.getHeader(new Http());
+                if(http != null)
+                    session.start();
                 if (tcp != null) {
                     switch (tcp.destination()) {
                         case 80:
@@ -68,11 +75,11 @@ public class TCP extends Handler implements Runnable {
                             break;
                         case 443:
                             //new Session(packet);
-                            int payloadstart = tcp.getOffset() + tcp.size();
-                            JBuffer buffer = new JBuffer(64 * 1024);
-                            buffer.peer(packet, payloadstart, packet.size() - payloadstart);
-                            String payload = buffer.toHexdump(packet.size(), false, true, true);
-                            System.out.println(payload);
+//                            int payloadstart = tcp.getOffset() + tcp.size();
+//                            JBuffer buffer = new JBuffer(64 * 1024);
+//                            buffer.peer(packet, payloadstart, packet.size() - payloadstart);
+//                            String payload = buffer.toHexdump(packet.size(), false, true, true);
+//                            System.out.println(payload);
                             break;
                         case 22:
                             System.out.println("SSH");

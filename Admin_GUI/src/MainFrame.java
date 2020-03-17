@@ -54,6 +54,7 @@ public class MainFrame extends JFrame {
                 System.out.println("Connected to Client");
                 String incomingData = receivedData(socketChannel);
                 while (incomingData != null && socketChannel.isConnected()) {
+                    if(!incomingData.equals(""))
                     updateLiveTab(incomingData);
                     JScrollBar sb = scrollPane.getVerticalScrollBar();
                     sb.setValue( sb.getMaximum() );

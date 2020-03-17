@@ -1,21 +1,28 @@
+import com.sun.deploy.net.HttpRequest;
 import org.jnetpcap.packet.PcapPacket;
+import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
-public class Session {
+import java.io.UnsupportedEncodingException;
+
+public class Session implements Runnable {
     private String sessionID;
     Tcp tcp = new Tcp();
+    Http http = new Http();
 
     public Session(PcapPacket packet) {
-        System.out.println(packet);
-        PcapPacket p = packet;
-        getSessionPacket(p);
+        http = packet.getHeader(new Http());
     }
 
-    public PcapPacket getSessionPacket(PcapPacket p) {
-        if(tcp.source() == 80 || tcp.source() == 443)
+    public void run() {
+        String request = http.fieldValue(Http.Request.RequestMethod);
+        if(request.equals("GET"))
         {
-
+            boolean illegalChar = http.toHexdump().startsWith("<");
+            System.out.println(illegalChar);
         }
-        return null;
+        System.out.println(request);
+
     }
 }
