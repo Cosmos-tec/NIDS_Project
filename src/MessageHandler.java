@@ -2,12 +2,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class MessageHandler {
+public class MessageHandler extends Thread {
+    public static String data;
 
     public static String receivedData(SocketChannel socketChannel) {
         try {
             ByteBuffer byteBuffer = ByteBuffer.allocate(5000);
             String message = "";
+            System.out.println(byteBuffer.get());
             while (socketChannel.read(byteBuffer) > 0) {
                 char byteRead = 0x00;
                 byteBuffer.flip();
@@ -42,5 +44,14 @@ public class MessageHandler {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public MessageHandler() {
+        this.start();
+        data = receivedData(TCP.sc);
+    }
+
+    public static String getMessage() {
+        return data;
     }
 }

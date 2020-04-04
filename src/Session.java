@@ -60,7 +60,7 @@ public class Session implements Runnable {
     String session () {
         if(http != null)
         {
-            System.out.println(http);
+            //System.out.println(http);
         }
 //        boolean cookie = http.hasField(Http.Request.Cookie);
 //        if(cookie){

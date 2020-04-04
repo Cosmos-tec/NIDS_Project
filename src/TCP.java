@@ -103,13 +103,15 @@ public class TCP extends Handler implements Runnable {
                 }
             }
         };
-        while(MessageHandler.receivedData(sc).equals("Play"))
-        // capture all packet
+        while(sc.isConnected())
         {
-            pcap.loop(Pcap.LOOP_INFINATE/*100*/, jpacketHandler, "jNetPcap");
-            System.out.println("Loop infinite");
+            if(MessageHandler.getMessage().equals("Play"))
+                pcap.loop(Pcap.MODE_NON_BLOCKING/*100*/, jpacketHandler, "jNetPcap");
+            //System.out.println("Loop infinite");
+            else if(MessageHandler.getMessage().equals("Stop"))
+                pcap.close();
         }
-        pcap.close();
+        //pcap.close();
     }
 
     public void run() {

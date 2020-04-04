@@ -1,8 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,19 +7,21 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public class MainFrame extends JFrame {
-    private JPanel leftPanel,rightPanel;
+    private DefaultTableModel filterModel = new DefaultTableModel();
     private JPanel topPanel = new JPanel();
     private JPanel bottomPanel = new JPanel();
+    JPanel alertPanel = new JPanel();
+    private JTextField protocol = new JTextField(20);
     SocketChannel socketChannel;
     JTabbedPane tabbedPane = new JTabbedPane();
-    Action playAction, pauseAction, stopAction;
+    Action playAction, stopAction;
     private JDesktopPane desktop;
     private String[] columnNames = {"No.", "TimeStamp", "Source Ip",
     "Destination Ip", "Protocol", "Size"};
     JScrollPane scrollPane;
-
     JTable table = new JTable();
     DefaultTableModel model = new DefaultTableModel();
 
@@ -36,6 +35,7 @@ public class MainFrame extends JFrame {
         c.add(createTab(), BorderLayout.CENTER);
         model.setColumnIdentifiers(columnNames);
         table.setModel(model);
+        createFilter();
         Toolkit toolkit = getToolkit();
         Dimension dimension = toolkit.getScreenSize();
 
@@ -47,35 +47,37 @@ public class MainFrame extends JFrame {
         try {
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.socket().bind(new InetSocketAddress(5000));
+            //serverSocketChannel.configureBlocking(false);
+            String incomingData = "";
             boolean running = true;
             while (running) {
+                addWindowListener(
+                        new WindowAdapter() {
+                            public void windowClosing( WindowEvent event )
+                            {
+                                shutDown();
+                            }
+                        }
+                );
                 System.out.println("Waiting for request ...");
                 socketChannel = serverSocketChannel.accept();
                 System.out.println("Connected to Client");
-                String incomingData = receivedData(socketChannel);
+                incomingData = receivedData(socketChannel);
                 while (incomingData != null && socketChannel.isConnected()) {
                     if(!incomingData.equals(""))
                     updateLiveTab(incomingData);
                     JScrollBar sb = scrollPane.getVerticalScrollBar();
                     sb.setValue( sb.getMaximum() );
                     incomingData = receivedData(socketChannel);
-                    if(incomingData.equals("Alert")) {
-                        new alertTab(tabbedPane.getTabComponentAt(4));
-                    }
+//                    if(incomingData.equals("Alert")) {
+//                        new alertTab(tabbedPane.getTabComponentAt(4));
+//                    }
                 }
+                running = false;
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
-        addWindowListener(
-                new WindowAdapter() {
-                    public void windowClosing( WindowEvent event )
-                    {
-                        shutDown();
-                    }
-                }
-        );
     }
 
     private void shutDown()
@@ -85,17 +87,17 @@ public class MainFrame extends JFrame {
 
     public JMenuBar createMenu() {
         JMenuBar menuBar = new JMenuBar();
-        JMenu file,edit,device,setting;
+        JMenu file,edit,device,help;
 
         file = new JMenu("File");
         edit = new JMenu("Edit");
         device = new JMenu("Device");
-        setting = new JMenu("Setting");
+        help = new JMenu("Help");
 
         menuBar.add(file);
         menuBar.add(edit);
         menuBar.add(device);
-        menuBar.add(setting);
+        menuBar.add(help);
 
         return menuBar;
     }
@@ -103,11 +105,8 @@ public class MainFrame extends JFrame {
     public JToolBar createToolBar () {
         JToolBar toolBar = new JToolBar();
         playAction = new playAction();
-        pauseAction = new pauseAction();
         stopAction = new stopAction();
         toolBar.add(playAction);
-        toolBar.add( new JToolBar.Separator() );
-        toolBar.add(pauseAction);
         toolBar.add( new JToolBar.Separator() );
         toolBar.add(stopAction);
 
@@ -143,13 +142,13 @@ public class MainFrame extends JFrame {
                 "Does nothing");
         tabbedPane.setMnemonicAt(3, KeyEvent.VK_1);
 
-        JComponent panel5 = new JTextArea(
-                "Panel #4 (has a preferred size of 410 x 50).");
-        panel5.setPreferredSize(new Dimension(410, 50));
+        JComponent panel5 = alertPanel;
         tabbedPane.addTab("    Alert            ", icon, panel5,
                 "Does nothing at all");
         tabbedPane.setMnemonicAt(4, KeyEvent.VK_4);
-
+        createAlertTab(panel5);
+        //Thread alert = new Thread(new alertTab(panel5));
+        //alert.start();
         return tabbedPane;
     }
 
@@ -170,30 +169,8 @@ public class MainFrame extends JFrame {
         // display window in which user can input entry
         public void actionPerformed( ActionEvent e )
         {
-            String send = "Play";
-            sendMessage(socketChannel,send);
             //Start live Capture
-        }
-    }
-
-    private class pauseAction extends AbstractAction {
-
-        // set up action's name, icon, descriptions and mnemonic
-        public pauseAction()
-        {
-            putValue( NAME, "Pause" );
-            putValue( SMALL_ICON, new ImageIcon(
-                    getClass().getResource( "images/pause.png" ) ) );
-            putValue( SHORT_DESCRIPTION, "Pause" );
-            putValue( LONG_DESCRIPTION,
-                    "Pause/Do not display any incoming traffic" );
-            putValue( MNEMONIC_KEY, new Integer( 'P' ) );
-        }
-
-        // display window in which user can input entry
-        public void actionPerformed( ActionEvent e )
-        {
-            //Pause live Capture
+            sendMessage(socketChannel,"Play");
         }
     }
 
@@ -215,6 +192,7 @@ public class MainFrame extends JFrame {
         public void actionPerformed( ActionEvent e )
         {
             //kill live Capture
+            sendMessage(socketChannel,"Stop");
         }
     }
 
@@ -261,5 +239,54 @@ public class MainFrame extends JFrame {
     public void updateLiveTab(String data) {
         String[] row = data.split(" ");
         model.addRow(row);
+    }
+
+    public void createFilter() {
+        filterModel.setColumnIdentifiers(columnNames);
+        JTable filterTable = new JTable(filterModel);
+        JLabel  namelabel= new JLabel("Protocol: ");
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout());
+
+        controlPanel.add(namelabel);
+        controlPanel.add(protocol);
+        bottomPanel.setLayout(new BorderLayout());
+        bottomPanel.add(controlPanel, BorderLayout.LINE_START);
+        bottomPanel.add(new JScrollPane(filterTable),BorderLayout.CENTER);
+
+        protocol.addKeyListener(new CustomKeyListener());
+    }
+
+    class CustomKeyListener implements KeyListener{
+        public void keyTyped(KeyEvent e) {
+        }
+        public void keyPressed(KeyEvent e) {
+            if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                int rowCount = model.getRowCount();
+                String[] value = new String[6];
+                for(int ii=0; ii < rowCount; ii++) {
+                    if(model.getValueAt(ii,4).equals(protocol.getText())) {
+                        for (int i=0; i < 6; i++) {
+                            value[i] = model.getValueAt(ii, i).toString();
+                        }
+                        filterModel.addRow(value);
+                    }
+                }
+                JOptionPane.showMessageDialog(null, "Filtering for: " + protocol.getText());
+            }
+        }
+        public void keyReleased(KeyEvent e) {
+        }
+    }
+
+    void createAlertTab(JComponent aTab) {
+        String[] columnNames = {"Attack Type", "TimeStamp", "Source Ip","Port","Info"};
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(columnNames);
+        JTable table = new JTable(model);
+        alertPanel.setLayout(new GridLayout());
+        alertPanel.add(new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        alertPanel.add(new JTextArea("Hexdump of malicious packet."));
     }
 }
