@@ -18,6 +18,7 @@ public class MessageHandler extends Thread {
                     if (byteRead == 0x00) {
                         break;
                     }
+                    
                     message += byteRead;
                 }
                 if (byteRead == 0x00) {
