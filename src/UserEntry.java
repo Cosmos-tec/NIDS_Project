@@ -8,6 +8,7 @@ public class UserEntry {
     private String dstPort = "";
     private String protocol = "";
     private String attackType = "";
+    private String attackInfo = "";
     private String attackDescription = "";
 
     //Packet info
@@ -137,6 +138,14 @@ public class UserEntry {
 
     public void setAttackDescription(String attackDescription) {
         this.attackDescription = attackDescription;
+    }
+
+    public String getAttackInfo() {
+        return attackInfo;
+    }
+
+    public void setAttackInfo(String attackInfo) {
+        this.attackInfo = attackInfo;
     }
 
     public String all() {

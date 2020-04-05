@@ -19,6 +19,10 @@ public class Alert implements UserDataAccess {
         connect();
 
         sqlAttackInfo = connection.prepareStatement(
+                "INSERT INTO attackinfo (srcIP, dstIP, srcPort, dstPort, protocol, attackType, attackInfo)" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+        /*sqlAttackInfo = connection.prepareStatement(
                 "INSERT INTO attackinfo ( userID, protocol, attackType ) " +
                         "VALUES ( ? , ? , ? )" );
 
@@ -28,7 +32,7 @@ public class Alert implements UserDataAccess {
 
         sqlPacketInfo = connection.prepareStatement(
                 "INSERT INTO packetInfo (srcIP,size,srcPort,dstPort,protocol) " +
-                        "VALUES ( ? , ? , ? , ? , ? )" );
+                        "VALUES ( ? , ? , ? , ? , ? )" ); */
 
     }
 
@@ -37,8 +41,12 @@ public class Alert implements UserDataAccess {
             int result;
 
             sqlAttackInfo.setString(1, uE.getAttacker());
-            sqlAttackInfo.setString(2, uE.getProtocol());
-            sqlAttackInfo.setString(3, uE.getAttackType());
+            sqlAttackInfo.setString(2, TCP.hostIP);
+            sqlAttackInfo.setString(3, uE.getSrcPort());
+            sqlAttackInfo.setString(4, uE.getDstPort());
+            sqlAttackInfo.setString(5, uE.getProtocol());
+            sqlAttackInfo.setString(6, uE.getAttackType());
+            sqlAttackInfo.setString(7, uE.getAttackInfo());
             result = sqlAttackInfo.executeUpdate();
             //System.out.println("Result: " + result);
 
@@ -49,7 +57,7 @@ public class Alert implements UserDataAccess {
 
             // get Aid from attackinfo table on the data base
             //sqlProtocol.setString(1, );
-
+            /*
             sqlPacketInfo.setString(1, uE.getAttacker());
             sqlPacketInfo.setInt(2, uE.getDataSize());
             sqlPacketInfo.setString(3, uE.getSrcPort());
@@ -60,7 +68,7 @@ public class Alert implements UserDataAccess {
             if(result == 0) {
                 System.out.println("Something went wrong");
                 connection.rollback();
-            }
+            } */
 
             connection.commit();
 
@@ -82,7 +90,7 @@ public class Alert implements UserDataAccess {
         String driver = "com.mysql.cj.jdbc.Driver";
 
         // URL to connect to projectdatabase database
-        String url = "jdbc:mysql://localhost:3306/projectdatabase";
+        String url = "jdbc:mysql://localhost:3306/nids?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT";
 
         // load database driver class
         Class.forName( driver );

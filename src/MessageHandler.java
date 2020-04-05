@@ -2,14 +2,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class MessageHandler extends Thread {
-    public static String data;
+public class MessageHandler {
+    public static String data = "";
 
     public static String receivedData(SocketChannel socketChannel) {
         try {
-            ByteBuffer byteBuffer = ByteBuffer.allocate(5000);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(500);
             String message = "";
-            System.out.println(byteBuffer.get());
+            socketChannel.configureBlocking(false);
             while (socketChannel.read(byteBuffer) > 0) {
                 char byteRead = 0x00;
                 byteBuffer.flip();
@@ -18,7 +18,6 @@ public class MessageHandler extends Thread {
                     if (byteRead == 0x00) {
                         break;
                     }
-
                     message += byteRead;
                 }
                 if (byteRead == 0x00) {
@@ -47,12 +46,13 @@ public class MessageHandler extends Thread {
         }
     }
 
-    public MessageHandler() {
-        this.start();
-        data = receivedData(TCP.sc);
-    }
 
     public static String getMessage() {
+        data = receivedData(TCP.sc);
+//        if(!receivedData(TCP.sc).equals(""))
+//            data = receivedData(TCP.sc);
+//            else
+//                data = "Play";
         return data;
     }
 }

@@ -69,9 +69,9 @@ public class MainFrame extends JFrame {
                     JScrollBar sb = scrollPane.getVerticalScrollBar();
                     sb.setValue( sb.getMaximum() );
                     incomingData = receivedData(socketChannel);
-//                    if(incomingData.equals("Alert")) {
-//                        new alertTab(tabbedPane.getTabComponentAt(4));
-//                    }
+                    if(incomingData.equals("TCP-SYN FLOOD")) {
+                        JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
+                    }
                 }
                 running = false;
             }
@@ -280,7 +280,7 @@ public class MainFrame extends JFrame {
     }
 
     void createAlertTab(JComponent aTab) {
-        String[] columnNames = {"Attack Type", "TimeStamp", "Source Ip","Port","Info"};
+        String[] columnNames = {"Attack Type", "TimeStamp", "Src Ip", "Dst Ip","Info"};
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(columnNames);
         JTable table = new JTable(model);

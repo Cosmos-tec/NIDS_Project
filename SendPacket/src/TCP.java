@@ -29,7 +29,7 @@ public class TCP {
                                 + "b5b1c1cf005020ce 4303000000008002 "
                                 + "2000d94300000204 05b4010303020101 " + "0402");
 
-        InetAddress dst = InetAddress.getByName("10.3.4.66");
+        InetAddress dst = InetAddress.getByName("192.168.1.159");
         InetAddress src = InetAddress.getByName("192.168.10.100");
 
         Ip4 ip = packet.getHeader(new Ip4());
@@ -53,7 +53,7 @@ public class TCP {
                     .toString());
             return;
         }
-        PcapIf device = alldevs.get(1); /*2*/// We know we have atleast 1 device
+        PcapIf device = alldevs.get(2); /*2*/// We know we have atleast 1 device
 
         //Open network interface
         int snaplen = 64 * 1024; // Capture all packets, no trucation

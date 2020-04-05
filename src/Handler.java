@@ -70,7 +70,7 @@ public class Handler {
                 attackInfo(sPacket.get(0), "Red");
                 //Alert.start();
                 count_syn = 0;
-                sendMessage(TCP.sc, "Alert");
+                sendMessage(TCP.sc, "TCP-SYN FLOOD");
                 return "Red";
             } else if (count_syn > 1) {
                 System.out.println("Yellow Warning for IP: " + testIp);
@@ -78,7 +78,7 @@ public class Handler {
                 attackInfo(sPacket.get(0), "Yellow");
                 //Alert.start();
                 count_syn = 0;
-                sendMessage(TCP.sc, "Alert");
+                sendMessage(TCP.sc, "TCP-SYN FLOOD");
                 return "Yellow";
             } else {
                 count_syn = 0;
@@ -114,8 +114,9 @@ public class Handler {
         ue.setDataSize(tcp.size());
         ue.setAttacker(sourceIp);
         ue.setProtocol("TCP");
-        ue.setAttackType("DD0S attack");
+        ue.setAttackType("DDOS");
         ue.setThreatLevel(threatLevel);
+        ue.setAttackInfo("SYN-FLOOD");
         ue.setAttackDescription("Attacker is attempting to flood your server " +
                 "with syn packet in other to perform a dos attack.");
 
