@@ -11,6 +11,8 @@ public class UserEntry {
     private String attackInfo = "";
     private String attackDescription = "";
 
+    private String hexDump = "";
+
     //Packet info
     private String no = "";
     private String srcIP = "";
@@ -146,6 +148,14 @@ public class UserEntry {
 
     public void setAttackInfo(String attackInfo) {
         this.attackInfo = attackInfo;
+    }
+
+    public String getHexDump() {
+        return hexDump;
+    }
+
+    public void setHexDump(String hexDump) {
+        this.hexDump = hexDump;
     }
 
     public String all() {

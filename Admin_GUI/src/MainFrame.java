@@ -5,9 +5,12 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.sql.ResultSet;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 public class MainFrame extends JFrame {
     private DefaultTableModel filterModel = new DefaultTableModel();
@@ -18,17 +21,18 @@ public class MainFrame extends JFrame {
     SocketChannel socketChannel;
     JTabbedPane tabbedPane = new JTabbedPane();
     Action playAction, stopAction;
-    private JDesktopPane desktop;
     private String[] columnNames = {"No.", "TimeStamp", "Source Ip",
     "Destination Ip", "Protocol", "Size"};
     JScrollPane scrollPane;
     JTable table = new JTable();
     DefaultTableModel model = new DefaultTableModel();
+    DefaultTableModel model1 = new DefaultTableModel();
+    JTextPane textPane = new JTextPane();
+    private Thread alert = null;
 
     public MainFrame() {
         super( "IDS ADMIN GUI" );
         setJMenuBar(createMenu());
-        desktop = new JDesktopPane();
 
         Container c = getContentPane();
         c.add( createToolBar(), BorderLayout.NORTH);
@@ -71,11 +75,16 @@ public class MainFrame extends JFrame {
                     incomingData = receivedData(socketChannel);
                     if(incomingData.equals("TCP-SYN FLOOD")) {
                         JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
+                        new Thread(new alertTab(model1,textPane));
+                    }
+                    else if(incomingData.equals("XSS-Cross site scripting")) {
+                        JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
+                        new Thread(new alertTab(model1,textPane));
                     }
                 }
                 running = false;
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -124,7 +133,7 @@ public class MainFrame extends JFrame {
         topPanel.add(scrollPane);
 
         tabbedPane.addTab("    Live Traffic    ", icon, panel1,
-                "Does nothing");
+                "Live traffic feed");
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
         JComponent panel2 = new JTextArea("Panel #2");
@@ -144,7 +153,7 @@ public class MainFrame extends JFrame {
 
         JComponent panel5 = alertPanel;
         tabbedPane.addTab("    Alert            ", icon, panel5,
-                "Does nothing at all");
+                "Shows triggered alert");
         tabbedPane.setMnemonicAt(4, KeyEvent.VK_4);
         createAlertTab(panel5);
         //Thread alert = new Thread(new alertTab(panel5));
@@ -281,12 +290,27 @@ public class MainFrame extends JFrame {
 
     void createAlertTab(JComponent aTab) {
         String[] columnNames = {"Attack Type", "TimeStamp", "Src Ip", "Dst Ip","Info"};
-        DefaultTableModel model = new DefaultTableModel();
-        model.setColumnIdentifiers(columnNames);
-        JTable table = new JTable(model);
+        model1.setColumnIdentifiers(columnNames);
+        JTable table = new JTable(model1);
         alertPanel.setLayout(new GridLayout());
         alertPanel.add(new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
-        alertPanel.add(new JTextArea("Hexdump of malicious packet."));
+        textPane.setText("HexDump of rawPacket\n");
+        alertPanel.add(new JScrollPane(textPane,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        try {
+            SqlQuery sql = new SqlQuery();
+            ResultSet res = sql.findAlertInfo();
+            if(res != null)
+                new Thread(new alertTab(model1,textPane));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        try {
+//            alert = new Thread(new alertTab(model1, textPane));
+//            alert.start();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 }

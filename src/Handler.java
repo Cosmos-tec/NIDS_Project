@@ -119,6 +119,7 @@ public class Handler {
         ue.setAttackInfo("SYN-FLOOD");
         ue.setAttackDescription("Attacker is attempting to flood your server " +
                 "with syn packet in other to perform a dos attack.");
+        ue.setHexDump(packet.toHexdump());
 
         //Alert.insertDB(ue);
         try {

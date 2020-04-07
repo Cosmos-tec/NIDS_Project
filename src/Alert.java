@@ -2,12 +2,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Random;
 
 public class Alert implements UserDataAccess {
 
     private  Connection connection;
     private  PreparedStatement sqlAttackInfo;
+    private  PreparedStatement sqlDescription;
     private  PreparedStatement sqlProtocol;
     private  PreparedStatement sqlPacketInfo;
     private  PreparedStatement sqlattactType;
@@ -21,6 +21,9 @@ public class Alert implements UserDataAccess {
         sqlAttackInfo = connection.prepareStatement(
                 "INSERT INTO attackinfo (srcIP, dstIP, srcPort, dstPort, protocol, attackType, attackInfo)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)");
+        sqlDescription = connection.prepareStatement(
+                "INSERT INTO description ( discription, hexPacket)" +
+                        "VALUES (?, ?)");
 
         /*sqlAttackInfo = connection.prepareStatement(
                 "INSERT INTO attackinfo ( userID, protocol, attackType ) " +
@@ -55,6 +58,14 @@ public class Alert implements UserDataAccess {
                 connection.rollback();
             }
 
+            sqlDescription.setString(1, uE.getAttackDescription());
+            sqlDescription.setString(2, uE.getHexDump());
+            result = sqlDescription.executeUpdate();
+
+            if(result == 0) {
+                System.out.println("Something went wrong");
+                connection.rollback();
+            }
             // get Aid from attackinfo table on the data base
             //sqlProtocol.setString(1, );
             /*

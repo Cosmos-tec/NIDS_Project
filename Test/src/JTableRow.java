@@ -14,6 +14,9 @@ import javax.swing.table.DefaultTableModel;
 public class JTableRow {
 
     public static void main(String[] args){
+        String str1 = "/DVWA-master/vulnerabilities/xss_r/?name=%3CjavasCrIpT%3Ealert%28%22hello%22%29%3B%3C%2FjavasCrIpT%3E";
+        if(str1.toLowerCase().contains("script"))
+            System.out.println("true " + str1.toLowerCase());
 
         // create JFrame and JTable
         JFrame frame = new JFrame();
