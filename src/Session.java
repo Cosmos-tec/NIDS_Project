@@ -56,8 +56,6 @@ public class Session implements Runnable {
     public boolean urlScriptTag() {
         String request = http.fieldValue(Http.Request.RequestMethod);
         String url = http.fieldValue(Http.Request.RequestUrl);
-        //System.out.println("Request: " + request + " Url: " + url);
-        //String data = http.fieldValue(Http.Response.ResponseCode);
         if(request != null) {
             //System.out.println(http.toHexdump());
             if (request.equals("GET") || request.equals("POST")) {
