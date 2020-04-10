@@ -106,6 +106,7 @@ public class TCP extends Handler implements Runnable {
         while(sc.isConnected())
         {
             if(MessageHandler.getMessage() != null) {
+
                 if (MessageHandler.getMessage().equals("Play"))
                     while (true) {
                         pcap.loop(Pcap.MODE_NON_BLOCKING/*100*/, jpacketHandler, "jNetPcap");

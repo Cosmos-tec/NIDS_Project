@@ -9,7 +9,7 @@ public class SqlQuery {
         // connect to addressbook database
         connect();
 
-        // locate person
+        // locate person in database
         sqlFind = connection.prepareStatement(
                 "SELECT srcIP,  dstIP, srcPort, dstPort, ts, attackType, attackInfo FROM attackinfo");
         sqlFind1 = connection.prepareStatement(

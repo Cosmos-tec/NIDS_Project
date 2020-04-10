@@ -16,6 +16,7 @@ public class Alert implements UserDataAccess {
     public Alert() throws Exception
     {
         // connect to project database
+
         connect();
 
         sqlAttackInfo = connection.prepareStatement(

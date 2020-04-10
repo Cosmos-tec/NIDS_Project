@@ -52,6 +52,7 @@ public class TCP {
             System.err.printf("Can't read list of devices, error is %s", errbuf
                     .toString());
             return;
+
         }
         PcapIf device = alldevs.get(2); /*2*/// We know we have atleast 1 device
 

@@ -7,6 +7,7 @@ public class GUImain {
             UIManager.setLookAndFeel("com.jtattoo.plaf.noire.NoireLookAndFeel");
             new MainFrame();
         } catch (Exception ex) {
+
             ex.printStackTrace();
         }
     }

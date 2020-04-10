@@ -27,6 +27,7 @@ public class Session implements Runnable {
         ip = packet.getHeader(new Ip4());
         if(http != null)
             state = urlScriptTag();
+
     }
 
     public void run() {

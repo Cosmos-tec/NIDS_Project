@@ -48,6 +48,7 @@ public class MainFrame extends JFrame {
                 dimension.height - 200 );
 
         setVisible( true );
+
         try {
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
             serverSocketChannel.socket().bind(new InetSocketAddress(5000));

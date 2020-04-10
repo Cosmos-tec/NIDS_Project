@@ -18,6 +18,7 @@ public class alertTab extends SqlQuery implements Runnable {
     private JTextPane txtPane;
 
     public alertTab(DefaultTableModel model, JTextPane textPane) throws Exception {
+
         if(model.getRowCount() > 0)
             for(int ii=model.getRowCount()-1; ii > -1; ii--)
                 model.removeRow(ii);

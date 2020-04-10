@@ -156,6 +156,7 @@ public class Handler {
     }
 
     public String getProtocol(PcapPacket packet) {
+
         tcp = packet.getHeader(new Tcp());
         udp = packet.getHeader(new Udp());
         http = packet.getHeader(new Http());
