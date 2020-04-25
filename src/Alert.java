@@ -21,7 +21,7 @@ public class Alert implements UserDataAccess {
 
         sqlAttackInfo = connection.prepareStatement(
                 "INSERT INTO attackinfo (srcIP, dstIP, srcPort, dstPort, protocol, attackType, attackInfo)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)");
         sqlDescription = connection.prepareStatement(
                 "INSERT INTO description ( discription, hexPacket)" +
                         "VALUES (?, ?)");
@@ -102,7 +102,7 @@ public class Alert implements UserDataAccess {
         String driver = "com.mysql.cj.jdbc.Driver";
 
         // URL to connect to projectdatabase database
-        String url = "jdbc:mysql://localhost:3306/nids?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT";
+        String url = "jdbc:mysql://192.168.1.159:3306/nids?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT";
 
         // load database driver class
         Class.forName( driver );

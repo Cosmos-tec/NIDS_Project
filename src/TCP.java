@@ -61,8 +61,9 @@ public class TCP extends Handler implements Runnable {
 
                 tcp = packet.getHeader(new Tcp());
                 http = packet.getHeader(new Http());
-                if(http != null)
+                if(http != null) {
                     session.start();
+                }
                 if (tcp != null) {
                     switch (tcp.destination()) {
                         case 80:
@@ -73,16 +74,11 @@ public class TCP extends Handler implements Runnable {
                                 userIP = sourceIP;
                             }
                             break;
-                        case 443:
-                              //new Session(packet);
-//                            int payloadstart = tcp.getOffset() + tcp.size();
-//                            JBuffer buffer = new JBuffer(64 * 1024);
-//                            buffer.peer(packet, payloadstart, packet.size() - payloadstart);
-//                            String payload = buffer.toHexdump(packet.size(), false, true, true);
-//                            System.out.println(payload);
+                        case 8080:
+                            //System.out.println(packet.getHeader(new Http()));
                             break;
                         case 22:
-                            System.out.println("SSH");
+                            //System.out.println("SSH");
                             break;
                     }
                     if (sPacket.size() >= 10 && !userIP.equalsIgnoreCase(hostIP)) {
@@ -109,7 +105,7 @@ public class TCP extends Handler implements Runnable {
 
                 if (MessageHandler.getMessage().equals("Play"))
                     while (true) {
-                        pcap.loop(Pcap.MODE_NON_BLOCKING/*100*/, jpacketHandler, "jNetPcap");
+                        pcap.loop(Pcap.MODE_NON_PROMISCUOUS/*100*/, jpacketHandler, "jNetPcap");
                         if (MessageHandler.getMessage().equals("Stop")) {
                             pcap.close();
                             System.out.println("Stopping");
@@ -129,7 +125,7 @@ public class TCP extends Handler implements Runnable {
 
 
     public void GUI() {
-        SocketAddress address = new InetSocketAddress("127.0.0.1", 5000);
+        SocketAddress address = new InetSocketAddress("192.168.1.159", 5000);
         try {
             SocketChannel socketChannel = SocketChannel.open(address);
             System.out.println("Connected to Admin GUI");

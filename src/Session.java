@@ -1,4 +1,5 @@
 import com.sun.deploy.net.HttpRequest;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.application.Html;
@@ -12,7 +13,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class Session implements Runnable {
-    private String sessionID;
     private Http http = new Http();
     private boolean state;
     private UserEntry ue = new UserEntry();
@@ -34,7 +34,6 @@ public class Session implements Runnable {
         if(state) {
             byte[] sIP = new byte[4];
             sIP = ip.source();
-            System.out.println("XSS Cross site scripting detected");
             ue.setSrcPort(Integer.toString(tcp.source()));
             ue.setDstPort(Integer.toString(tcp.destination()));
             ue.setAttacker(org.jnetpcap.packet.format.FormatUtils.ip(sIP));
@@ -44,6 +43,24 @@ public class Session implements Runnable {
             ue.setAttackDescription("Attacker injected a HTML tag during a request");
             ue.setHexDump(pcap.toHexdump());
             Handler.sendMessage(TCP.sc, "XSS-Cross site scripting");
+            try {
+                new Alert().insertDB(ue);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if(checkRequestIsValid()) {
+            byte[] sIP;
+            sIP = ip.source();
+            ue.setSrcPort(Integer.toString(tcp.source()));
+            ue.setDstPort(Integer.toString(tcp.destination()));
+            ue.setAttacker(org.jnetpcap.packet.format.FormatUtils.ip(sIP));
+            ue.setProtocol("HTTP");
+            ue.setAttackType("Session-Hijacking");
+            ue.setAttackInfo("Duplicate-SessID");
+            ue.setAttackDescription("Attacker is using atemptting to use a dead/live session of a legit user");
+            ue.setHexDump(pcap.toHexdump());
+            Handler.sendMessage(TCP.sc, "Session Hijacking");
             try {
                 new Alert().insertDB(ue);
             } catch (Exception e) {
@@ -67,12 +84,25 @@ public class Session implements Runnable {
         return false;
     }
 
-    void htmlInjection() throws IOException {
-        String request = http.fieldValue(Http.Request.RequestUrl);
-        if(request != null) {
-            if (request.contains("script")) {
-                System.out.println("Alert Script url injection");
+    boolean checkRequestIsValid() {
+        String cookie = http.fieldValue(Http.Request.Cookie);
+        String user_agent = http.fieldValue(Http.Request.User_Agent);
+        String request = http.fieldValue(Http.Request.RequestMethod);
+        if(http != null) {
+            if(request != null) {
+                if (request.equals("GET")) {
+                    if (user_agent != null) {
+                        if (user_agent.contains("curl") || user_agent.contains("wget")) {
+                            String[] sessionID = cookie.trim().split(";");
+                            if (sessionID[1].contains("PHPSESSID")) {
+                                System.out.println("Session Hijacking");
+                                return true;
+                            }
+                        }
+                    }
+                }
             }
         }
+        return false;
     }
 }
