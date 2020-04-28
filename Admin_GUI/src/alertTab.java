@@ -53,30 +53,32 @@ public class alertTab extends SqlQuery implements Runnable {
         model.addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
                 try {
-                //System.out.println(e.getFirstRow() + " " + model.getValueAt(0,0) );
-                //result.setFetchSize(2);
                     ResultSet result = db.findAlertDescription();
-                    String[] str = new String[5];
-                    //int countResult = result.getInt(1);
+                    String[] str = new String[100];
                     doc = txtPane.getStyledDocument();
                     if (e.getFirstRow() != 0) {
                         for (int ii = 0; ii < e.getFirstRow(); ii++) {
                             if(result.next()) {
                                 str[ii] = result.getString(2);
                             }
-                            //System.out.println("sql: " + result.getRow() + " selectedRow: " + e.getFirstRow());
+                        }
+                        for (String s : str) {
+                            if(s != null) {
+                                doc.remove(0, doc.getLength());
+                                doc.insertString(doc.getLength(), str[e.getFirstRow()-1], null);
+                                //System.out.println(str[e.getFirstRow()-1]);
+                            }
                         }
                     } else {
                         doc.remove(0, doc.getLength());
                         doc.insertString(doc.getLength(), result.getString(2), null);
                     }
-                    for (String s : str) {
-                        if(s != null) {
-                            doc.remove(0, doc.getLength());
-                            doc.insertString(doc.getLength(), str[e.getFirstRow()-1], null);
-                        }
-                        System.out.println(s);
-                    }
+//                    for (String s : str) {
+//                        if(s != null) {
+//                            doc.remove(0, doc.getLength());
+//                            doc.insertString(doc.getLength(), str[e.getFirstRow()-1], null);
+//                        }
+//                    }
                 } catch (BadLocationException | SQLException sql) {
                     sql.printStackTrace();
                 }

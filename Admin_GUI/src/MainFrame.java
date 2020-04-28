@@ -18,7 +18,7 @@ public class MainFrame extends JFrame {
     private JPanel bottomPanel = new JPanel();
     JPanel alertPanel = new JPanel();
     private JTextField protocol = new JTextField(20);
-    SocketChannel socketChannel;
+    SocketChannel[] socketChannel = new SocketChannel[3];
     JTabbedPane tabbedPane = new JTabbedPane();
     Action playAction, stopAction;
     private String[] columnNames = {"No.", "TimeStamp", "Source Ip",
@@ -51,10 +51,11 @@ public class MainFrame extends JFrame {
 
         try {
             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-            serverSocketChannel.socket().bind(new InetSocketAddress(5000));
-            //serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.socket().bind(new InetSocketAddress("192.168.1.159",5000));
+
             String incomingData = "";
             boolean running = true;
+            int ii = 0;
             while (running) {
                 addWindowListener(
                         new WindowAdapter() {
@@ -65,25 +66,34 @@ public class MainFrame extends JFrame {
                         }
                 );
                 System.out.println("Waiting for request ...");
-                socketChannel = serverSocketChannel.accept();
-                System.out.println("Connected to Client");
-                incomingData = receivedData(socketChannel);
-                while (incomingData != null && socketChannel.isConnected()) {
-                    if(!incomingData.equals(""))
-                    updateLiveTab(incomingData);
-                    JScrollBar sb = scrollPane.getVerticalScrollBar();
-                    sb.setValue( sb.getMaximum() );
-                    incomingData = receivedData(socketChannel);
-                    if(incomingData.equals("TCP-SYN FLOOD")) {
-                        JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
-                        new Thread(new alertTab(model1,textPane));
-                    }
-                    else if(incomingData.equals("XSS-Cross site scripting")) {
-                        JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
-                        new Thread(new alertTab(model1,textPane));
+                socketChannel[ii] = serverSocketChannel.accept();
+                System.out.println("Connected to Client " + socketChannel[ii].getRemoteAddress());
+                if(ii == 0) {
+                    //new Thread(new localServer1(socketChannel[1], model1, textPane)).start();
+                    System.out.println("in a loop");
+                    while(true) {
+                        incomingData = receivedData(socketChannel[0]);
+                        if(!incomingData.equals("") && !incomingData.contains("XSS"))
+                            updateLiveTab(incomingData);
+                        JScrollBar sb = scrollPane.getVerticalScrollBar();
+                        sb.setValue( sb.getMaximum() );
+                        //incomingData = receivedData(socketChannel[0]);
+                        if(incomingData.equals("TCP-SYN FLOOD")) {
+                            JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
+                            new Thread(new alertTab(model1,textPane));
+                        }
+                        if(incomingData.equals("XSS-Cross site scripting")) {
+                            JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
+                            new Thread(new alertTab(model1,textPane));
+                        }
+                        if(incomingData.equals("Session Hijacking")) {
+                            JOptionPane.showMessageDialog(null, "Alert! " + incomingData + " detected");
+                            new Thread(new alertTab(model1,textPane));
+                        }
                     }
                 }
-                running = false;
+                ii++;
+                //running = false;
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -180,7 +190,9 @@ public class MainFrame extends JFrame {
         public void actionPerformed( ActionEvent e )
         {
             //Start live Capture
-            sendMessage(socketChannel,"Play");
+            sendMessage(socketChannel[0],"Play");
+            sendMessage(socketChannel[1],"Play");
+            //sendMessage(socketChannel[2],"Play");
         }
     }
 
@@ -202,7 +214,7 @@ public class MainFrame extends JFrame {
         public void actionPerformed( ActionEvent e )
         {
             //kill live Capture
-            sendMessage(socketChannel,"Stop");
+            sendMessage(socketChannel[0],"Stop");
         }
     }
 
@@ -307,11 +319,5 @@ public class MainFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        try {
-//            alert = new Thread(new alertTab(model1, textPane));
-//            alert.start();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 }
