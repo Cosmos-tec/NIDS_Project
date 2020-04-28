@@ -89,11 +89,15 @@ public class Session implements Runnable {
         String user_agent = http.fieldValue(Http.Request.User_Agent);
         String request = http.fieldValue(Http.Request.RequestMethod);
         if(http != null) {
+            System.out.println(http);
             if(request != null) {
+                System.out.println(request);
                 if (request.equals("GET")) {
                     if (user_agent != null) {
+                        System.out.println(user_agent);
                         if (user_agent.contains("curl") || user_agent.contains("wget")) {
                             String[] sessionID = cookie.trim().split(";");
+                            System.out.println(sessionID[0] + " " + sessionID[1]);
                             if (sessionID[1].contains("PHPSESSID")) {
                                 System.out.println("Session Hijacking");
                                 return true;
