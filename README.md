@@ -10,6 +10,7 @@ The system’s primary function is to continually scan its network for any suspi
 * Tomcat-apache
 * Virtual Box
 * MySQL8
+* GNS3
 
 # Networking
 Looking into detecting various networking attack such as DDos, Brute force and web attack
