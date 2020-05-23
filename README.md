@@ -13,7 +13,7 @@ The system’s primary function is to continually scan its network for any suspi
 * GNS3
 
 # Project Report
-[Link to Report](images/Project ReportAO.pdf)
+![Link to Report](images/Project ReportAO.pdf)
 
 # Project Poster
 ![](images/ProjectPoster.PNG)
