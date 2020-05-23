@@ -12,6 +12,11 @@ The system’s primary function is to continually scan its network for any suspi
 * MySQL8
 * GNS3
 
+# Project Report
+
+# Project Poster
+![](images/ProjectPoster.PNG)
+
 # Networking
 Looking into detecting various networking attack such as DDos, Brute force and web attack
 
